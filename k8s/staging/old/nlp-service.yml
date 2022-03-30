@@ -1,0 +1,24 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nlp-app
+  labels:
+    app: nlp
+spec:
+  containers:
+    - name: nlp-app
+      image: 289889419728.dkr.ecr.us-east-1.amazonaws.com/trendertag-nlp-service-dev:latest
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: nlp-service 
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /nlp/health
+spec:
+  selector:
+    app: nlp
+  ports:
+    - port: 8000

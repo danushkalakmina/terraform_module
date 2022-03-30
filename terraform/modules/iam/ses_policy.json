@@ -1,0 +1,22 @@
+{
+    "Id": "SES-${Environment}-POLICY",
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AuthorizeFromAddress",
+            "Effect": "Allow",
+            "Resource": "${domain_arn}",
+            "Action": [
+                "SES:SendEmail",
+                "SES:SendRawEmail",
+                "SES:SendTemplatedEmail",
+                "SES:ListTemplates"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "SES:FromAddress": "${ses_send_email}"
+                }
+            }
+        }
+    ]
+}

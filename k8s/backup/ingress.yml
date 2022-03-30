@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+#    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: alb
+
+    # alb.ingress.kubernetes.io/backend-protocol: HTTPS
+
+    # alb.ingress.kubernetes.io/healthcheck-protocol: HTTPS
+
+    alb.ingress.kubernetes.io/load-balancer-name: qa-alb
+    # alb.ingress.kubernetes.io/subnets: subnet-0ca4535b2c245c3c9, subnet-0d8ea60b170461e27
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip   
+    ## SSL Settings
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:289889419728:certificate/217bcb25-0e96-4333-a554-5f57951b13e1
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+
+    # alb.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+    
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1$2$3
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1M"
+
+spec:
+  tls:
+  - hosts:
+    - k8s.trendertag.com
+    secretName: tls-secret
+  rules:
+  - host: k8s.trendertag.com
+    http:
+      paths:
+        - path: /*
+          backend:
+            serviceName: ssl-redirect
+            servicePort: use-annotation
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 5678
+        # - path: /banana
+        #   backend:
+        #     serviceName: banana-service
+        #     servicePort: 5678
+        - path:  /nlp(/|$)(.*)
+          pathType: Prefix
+          backend:
+            serviceName: nlp-service
+            servicePort: 8000
+          

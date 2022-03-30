@@ -1,0 +1,41 @@
+#nlp-serice deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-deployment
+  labels:
+    app: nlp-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nlp-service
+  template:
+    metadata:
+      labels:
+        app: nlp-service
+    spec:
+      containers:
+        - name: nlp-service
+          # image: 289889419728.dkr.ecr.us-east-1.amazonaws.com/trendertag-nlp-service-dev:latest
+          image: 289889419728.dkr.ecr.us-east-1.amazonaws.com/trendertag-nlp-service-dev:2
+          env:
+          - name: ENV
+            value: staging
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlp-service
+  labels:
+    app: nlp-service
+  annotations:
+#Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer
+    alb.ingress.kubernetes.io/healthcheck-path: /nlp/health
+spec:
+  selector:
+    app: nlp-service
+  ports:
+    - port: 8000

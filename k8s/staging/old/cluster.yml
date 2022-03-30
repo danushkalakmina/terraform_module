@@ -1,0 +1,63 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: StagingCluster
+  region: us-east-1
+  version: "1.21"
+
+availabilityZones: ['us-east-1c', 'us-east-1d']
+
+iam:
+  withOIDC: true
+
+vpc:
+  cidr: 10.10.0.0/16
+  autoAllocateIPv6: true
+  # disable public access to endpoint and only allow private access
+  # clusterEndpoints:
+  #   publicAccess: false
+  #   privateAccess: true
+
+addons:
+- name: vpc-cni # no version is specified so it deploys the default version
+  attachPolicyARNs:
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+- name: coredns
+  version: latest # auto discovers the latest available
+- name: kube-proxy
+  version: latest
+
+
+managedNodeGroups:
+  - name: NodeGroup-1
+    minSize: 1
+    maxSize: 6
+    desiredCapacity: 2
+    volumeSize: 20
+    instanceType: t2.medium
+    labels: {role: worker}
+    privateNetworking: true
+    tags:
+      nodegroup-role: worker
+      k8s.io/cluster-autoscaler/node-template/label/role: worker
+    # ssh:
+    #   publicKeyName: TT-K8S-NON-TEST
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+  - name: NodeGroup-0
+    minSize: 1
+    maxSize: 6
+    desiredCapacity: 2
+    volumeSize: 20
+    instanceType: t2.large
+    labels: {role: worker}
+    privateNetworking: true
+    tags:
+      nodegroup-role: worker
+      k8s.io/cluster-autoscaler/node-template/label/role: worker
+    ssh:
+      publicKeyName: TT-K8S-StagingCluster
+    iam:
+      withAddonPolicies:
+        autoScaler: true

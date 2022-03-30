@@ -1,0 +1,14 @@
+terraform replaces all the instances each time when apply 
+
+https://github.com/hashicorp/terraform-provider-aws/issues/1471
+
+
+https://stackoverflow.com/questions/64421160/terraform-always-want-to-update-the-cooldown-for-my-elastic-beanstalk
+
+
+
+host headers
+
+https://github.com/hashicorp/terraform/issues/22563
+
+https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment/issues/43
